@@ -38,7 +38,12 @@ class SmtpClient {
 
     private function connect() {
         $addr = ($this->ssl ? 'ssl://' : '') . $this->host . ':' . $this->port;
-        $this->sock = @stream_socket_client($addr, $errno, $errstr, 10);
+        $ctx  = stream_context_create(['ssl' => [
+            'verify_peer'       => false,
+            'verify_peer_name'  => false,
+            'allow_self_signed' => true,
+        ]]);
+        $this->sock = @stream_socket_client($addr, $errno, $errstr, 10, STREAM_CLIENT_CONNECT, $ctx);
         if (!$this->sock) {
             throw new Exception("SMTP 连接失败：$errstr ($errno)");
         }
