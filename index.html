@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人邮局 · 登录</title>
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/login.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-logo">
+    <span class="logo-icon">✉️</span>
+    <div class="logo-name">个人邮局</div>
+    <div class="logo-tagline">Personal Post Office</div>
+  </div>
+
+  <div class="login-card">
+    <h2>欢迎回来</h2>
+    <p class="login-sub">登录你的个人邮局账户</p>
+
+    <div class="login-error" id="loginError">邮箱或密码错误，请重试。</div>
+
+    <form id="loginForm" autocomplete="on">
+      <div class="form-group">
+        <label class="form-label" for="email">邮箱地址</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉</span>
+          <input class="input" type="email" id="email" name="email"
+            placeholder="your@example.com" required autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">密码</label>
+        <div class="input-wrap password-wrap">
+          <span class="input-icon">🔒</span>
+          <input class="input" type="password" id="password" name="password"
+            placeholder="请输入密码" required autocomplete="current-password" />
+          <span class="toggle-pw" id="togglePw" title="显示/隐藏密码">👁</span>
+        </div>
+      </div>
+
+      <div class="login-options">
+        <label class="checkbox-label">
+          <input type="checkbox" id="remember" name="remember" />
+          记住我
+        </label>
+        <a href="#" class="forgot-link">忘记密码？</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-login">登录</button>
+    </form>
+
+    <div class="login-demo-hint">
+      演示账号：<b>demo@postoffice.com</b> / <b>123456</b><br/>
+      或任意邮箱 + 任意密码均可登录
+    </div>
+  </div>
+
+  <div class="login-footer">
+    © 2026 个人邮局 &nbsp;·&nbsp;
+    <a href="#">隐私政策</a> &nbsp;·&nbsp;
+    <a href="#">服务条款</a>
+  </div>
+
+  <script>
+    // 登录逻辑
+    const form = document.getElementById('loginForm');
+    const errEl = document.getElementById('loginError');
+    const togglePw = document.getElementById('togglePw');
+    const pwInput = document.getElementById('password');
+
+    togglePw.addEventListener('click', () => {
+      const isText = pwInput.type === 'text';
+      pwInput.type = isText ? 'password' : 'text';
+      togglePw.textContent = isText ? '👁' : '🙈';
+    });
+
+    // 自动填充演示账号
+    const savedEmail = localStorage.getItem('ppo_email');
+    if (savedEmail) {
+      document.getElementById('email').value = savedEmail;
+      document.getElementById('remember').checked = true;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+
+      if (!email || !password) {
+        errEl.classList.add('show');
+        return;
+      }
+
+      // 模拟登录（任意账号密码均可，或使用 demo 账号）
+      errEl.classList.remove('show');
+
+      if (remember) {
+        localStorage.setItem('ppo_email', email);
+      } else {
+        localStorage.removeItem('ppo_email');
+      }
+
+      // 保存用户信息
+      const userName = email.split('@')[0];
+      localStorage.setItem('ppo_user', JSON.stringify({
+        email,
+        name: userName.charAt(0).toUpperCase() + userName.slice(1),
+        avatar: userName.charAt(0).toUpperCase(),
+        loggedIn: true
+      }));
+
+      // 跳转到主系统
+      window.location.href = 'app.html';
+    });
+  </script>
+</body>
+</html>

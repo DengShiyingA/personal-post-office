@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人邮局</title>
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/app.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ── 侧边栏 ── -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">
+        <span class="logo-icon">✉️</span>
+        <span class="logo-text">个人邮局</span>
+      </div>
+
+      <div class="sidebar-section-title">邮件</div>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-view="dashboard" href="#dashboard">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">仪表盘</span>
+        </a>
+        <a class="nav-item" data-view="compose" href="#compose">
+          <span class="nav-icon">✍️</span>
+          <span class="nav-label">写信</span>
+        </a>
+        <a class="nav-item" data-view="inbox" href="#inbox">
+          <span class="nav-icon">📥</span>
+          <span class="nav-label">收件箱</span>
+          <span class="nav-badge" id="inboxBadge">3</span>
+        </a>
+        <a class="nav-item" data-view="sent" href="#sent">
+          <span class="nav-icon">📤</span>
+          <span class="nav-label">已发送</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-section-title">服务</div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" data-view="tracking" href="#tracking">
+          <span class="nav-icon">📦</span>
+          <span class="nav-label">实时追踪</span>
+        </a>
+        <a class="nav-item" data-view="contacts" href="#contacts">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label">地址簿</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-title">账户</div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" data-view="settings" href="#settings">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">设置</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-info" id="userInfoBtn">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div>
+          <div class="user-name" id="userName">用户</div>
+          <div class="user-email" id="userEmail">user@example.com</div>
+        </div>
+        <span class="user-menu-btn">···</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── 主内容 ── -->
+  <div class="main-content">
+    <!-- 顶部栏 -->
+    <header class="page-header">
+      <div class="page-title" id="pageTitle">仪表盘</div>
+      <div class="page-actions">
+        <div class="search-bar">
+          <span>🔍</span>
+          <input type="text" placeholder="搜索邮件..." id="globalSearch" />
+        </div>
+        <button class="btn btn-primary" id="composeBtn">✍️ 写信</button>
+      </div>
+    </header>
+
+    <!-- 页面内容 -->
+    <div class="page-body">
+      <!-- 各视图由 JS 渲染注入 -->
+      <div id="viewContainer" style="height:100%;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast 通知 -->
+<div class="toast" id="toast"></div>
+
+<!-- 核心 JS（顺序很重要） -->
+<script src="js/api.js"></script>
+<script src="js/store.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/compose.js"></script>
+<script src="js/views/inbox.js"></script>
+<script src="js/views/sent.js"></script>
+<script src="js/views/tracking.js"></script>
+<script src="js/views/contacts.js"></script>
+<script src="js/views/settings.js"></script>
+<script src="js/router.js"></script>
+</body>
+</html>
