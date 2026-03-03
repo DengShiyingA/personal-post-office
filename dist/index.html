@@ -138,7 +138,13 @@
 
         localStorage.setItem('ppo_token', token);
         localStorage.setItem('ppo_user', JSON.stringify({ ...u, loggedIn: true, demo: !!demo }));
-        window.location.href = 'app.html';
+
+        // 显示登录成功
+        errEl.style.cssText = 'background:#e8f7e8;border:1px solid #90c290;color:#2e7d32';
+        errEl.textContent = '✓ 登录成功，正在进入…';
+        errEl.classList.add('show');
+        btn.textContent = '✓ 成功';
+        setTimeout(() => { window.location.href = 'app.html'; }, 700);
 
       } catch (err) {
         // PHP 不可用时退回纯本地 Mock 模式
@@ -151,9 +157,14 @@
           }));
           if (remember) localStorage.setItem('ppo_email', email);
           else localStorage.removeItem('ppo_email');
-          window.location.href = 'app.html';
+          errEl.style.cssText = 'background:#e8f7e8;border:1px solid #90c290;color:#2e7d32';
+          errEl.textContent = '✓ 登录成功（演示模式），正在进入…';
+          errEl.classList.add('show');
+          btn.textContent = '✓ 成功';
+          setTimeout(() => { window.location.href = 'app.html'; }, 700);
           return;
         }
+        errEl.style.cssText = '';
         errEl.textContent = err.message || '登录失败，请重试';
         errEl.classList.add('show');
         btn.textContent = '登录';

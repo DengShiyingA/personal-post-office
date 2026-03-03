@@ -32,7 +32,13 @@ if (!$cfg) {
 try {
     $imap = new ImapClient($cfg, $email, $password);
     $result = $imap->test();
-    if (!$result['success']) err('邮箱或密码错误：' . $result['message']);
+    if (!$result['success']) {
+        $raw = strtolower($result['message'] ?? '');
+        if (preg_match('/no such user|user.{0,15}(exist|found)|unknown user|invalid user|用户不存在/i', $raw)) {
+            err('该账号不存在，请检查邮箱地址是否正确');
+        }
+        err('密码错误，请重试');
+    }
 
     $token = create_session($email, $password);
     $name  = explode('@', $email)[0];
