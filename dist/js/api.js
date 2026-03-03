@@ -10,98 +10,18 @@
 
   /* ── Mock 数据初始化 ─────────────────────────── */
   function initMockData() {
-    if (localStorage.getItem('ppo_mock_initialized')) return;
+    if (localStorage.getItem('ppo_mock_initialized') === 'v2') return;
 
-    const inbox = [
-      {
-        id: 'msg-001', folder: 'inbox', unread: true, starred: false,
-        from: '林小雨', fromEmail: 'lin@example.com',
-        to: '我', toEmail: 'me@postoffice.com',
-        subject: '好久不见，最近还好吗？',
-        body: '亲爱的朋友，\n\n好久没有联系了，不知道你最近过得怎么样？\n\n前几天看到街上的梧桐叶落了，忽然想起我们一起走过那条街道的时光。那时候我们总是聊到很晚，对未来有着说不完的幻想。\n\n现在，我在一家小书店做店员，每天和书为伴，虽然薪水不高，但很安心。你呢？还在那家公司工作吗？\n\n希望你一切安好。期待你的回信。\n\n林小雨 敬上\n2026年3月1日，于成都',
-        date: '2026-03-01T09:12:00', trackingId: 'PPO-20260301-1234',
-        trackingStatus: 'delivered', package: '心意', from_city: '成都', to_city: '上海'
-      },
-      {
-        id: 'msg-002', folder: 'inbox', unread: true, starred: true,
-        from: '张伟明', fromEmail: 'zhang@example.com',
-        to: '我', toEmail: 'me@postoffice.com',
-        subject: '生日快乐！来自纽约的祝福',
-        body: '生日快乐！\n\n隔着太平洋，送上我最真诚的祝福。\n\n我在纽约一切都好，这里的秋天很美，只是少了你们这群老朋友。\n\n张伟明\n2026年2月28日，于纽约',
-        date: '2026-02-28T14:30:00', trackingId: 'PPO-20260228-5678',
-        trackingStatus: 'delivered', package: '珍藏', from_city: '纽约', to_city: '上海'
-      },
-      {
-        id: 'msg-003', folder: 'inbox', unread: false, starred: false,
-        from: '陈思远', fromEmail: 'chen@example.com',
-        to: '我', toEmail: 'me@postoffice.com',
-        subject: '谢谢你的那封信',
-        body: '你好，\n\n收到你上个月的来信，我激动了好久。\n\n希望我们能继续这样通信。\n\n陈思远',
-        date: '2026-02-20T16:22:00', trackingId: null,
-        trackingStatus: null, package: null, from_city: '北京', to_city: '上海'
-      }
-    ];
-
-    const sent = [
-      {
-        id: 'sent-001', folder: 'sent', unread: false, starred: false,
-        from: '我', fromEmail: 'me@postoffice.com',
-        to: '王芳芳', toEmail: 'wang@example.com',
-        subject: '致远方的你',
-        body: '芳芳，\n\n见字如面。\n\n好久没有联系，却总是在某个安静的午后想起你。\n\n期待你的回信。',
-        date: '2026-02-25T11:00:00', trackingId: 'PPO-20260225-9012',
-        trackingStatus: 'delivered', package: '心意', from_city: '上海', to_city: '深圳'
-      },
-      {
-        id: 'sent-002', folder: 'sent', unread: false, starred: true,
-        from: '我', fromEmail: 'me@postoffice.com',
-        to: '爸爸妈妈', toEmail: 'parents@example.com',
-        subject: '报平安，顺便说说近况',
-        body: '爸爸妈妈，\n\n好久没打电话，想着写封信给你们。\n\n我在上海一切都好，工作虽然忙，但已经慢慢适应了。\n\n爱你们的孩子',
-        date: '2026-02-10T20:30:00', trackingId: 'PPO-20260210-3344',
-        trackingStatus: 'delivered', package: '信笺', from_city: '上海', to_city: '武汉'
-      }
-    ];
-
-    const contacts = [
-      { id: 'c-001', name: '林小雨', email: 'lin@example.com', phone: '138-0000-0001', city: '成都', note: '大学室友' },
-      { id: 'c-002', name: '张伟明', email: 'zhang@example.com', phone: '138-0000-0002', city: '纽约', note: '留学好友' },
-      { id: 'c-003', name: '王芳芳', email: 'wang@example.com', phone: '138-0000-0003', city: '深圳', note: '高中同学' },
-      { id: 'c-004', name: '陈思远', email: 'chen@example.com', phone: '138-0000-0004', city: '北京', note: '网友' }
-    ];
-
-    const tracking = [
-      {
-        id: 'PPO-20260301-1234', status: 'delivered',
-        from: '成都', to: '上海', package: '心意',
-        sender: '林小雨', recipient: '我',
-        steps: [
-          { event: '已封装', location: '成都分拣中心', time: '2026-03-01 09:12', done: true },
-          { event: '已揽收', location: '成都快递', time: '2026-03-01 14:30', done: true },
-          { event: '运输中', location: '成都→上海', time: '2026-03-01 20:00', done: true },
-          { event: '派送中', location: '上海浦东配送站', time: '2026-03-02 08:30', done: true },
-          { event: '已签收', location: '上海收件点', time: '2026-03-02 11:20', done: true }
-        ]
-      },
-      {
-        id: 'PPO-20260225-9012', status: 'delivered',
-        from: '上海', to: '深圳', package: '心意',
-        sender: '我', recipient: '王芳芳',
-        steps: [
-          { event: '已封装', location: '上海分拣中心', time: '2026-02-25 11:00', done: true },
-          { event: '已揽收', location: '上海快递', time: '2026-02-25 15:00', done: true },
-          { event: '运输中', location: '上海→深圳', time: '2026-02-25 21:00', done: true },
-          { event: '派送中', location: '深圳配送站', time: '2026-03-02 09:00', done: true },
-          { event: '已签收', location: '深圳收件点', time: '2026-03-02 10:45', done: true }
-        ]
-      }
-    ];
+    const inbox = [];
+    const sent = [];
+    const contacts = [];
+    const tracking = [];
 
     localStorage.setItem('ppo_inbox', JSON.stringify(inbox));
     localStorage.setItem('ppo_sent', JSON.stringify(sent));
     localStorage.setItem('ppo_contacts', JSON.stringify(contacts));
     localStorage.setItem('ppo_tracking', JSON.stringify(tracking));
-    localStorage.setItem('ppo_mock_initialized', '1');
+    localStorage.setItem('ppo_mock_initialized', 'v2');
   }
 
   /* ── API 核心 ──────────────────────────────── */

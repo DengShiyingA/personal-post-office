@@ -95,7 +95,7 @@
         const resp = await fetch('api/server-config.php');
         const data = await resp.json();
         if (data.ok && data.data && data.data.host) {
-          hintEl.innerHTML = '服务器模式：使用 <b>' + data.data.username + '</b> 邮箱账号登录';
+          hintEl.innerHTML = '✓ 邮件服务器已就绪';
         } else {
           hintEl.innerHTML = '演示模式：任意邮箱 + 任意密码均可登录';
         }
