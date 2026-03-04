@@ -107,9 +107,27 @@ class ImapClient {
         return $msg;
     }
 
-    // 删除邮件
+    // 删除邮件（移到 Trash 回收站）
     public function deleteMessage($uid, $folder = 'INBOX') {
+        // 先连接列出所有文件夹，找到 Trash 文件夹名
         $this->connect($folder);
+        $trashFolder = $this->getTrashFolder();
+        imap_mail_move($this->conn, (string)$uid, $trashFolder, CP_UID);
+        imap_expunge($this->conn);
+        $this->close();
+    }
+
+    // 移动邮件（从一个文件夹到另一个，用于恢复）
+    public function moveMessage($uid, $fromFolder, $toFolder) {
+        $this->connect($fromFolder);
+        imap_mail_move($this->conn, (string)$uid, $toFolder, CP_UID);
+        imap_expunge($this->conn);
+        $this->close();
+    }
+
+    // 永久删除（从回收站真正清除）
+    public function purgeMessage($uid, $trashFolder) {
+        $this->connect($trashFolder);
         imap_delete($this->conn, $uid, FT_UID);
         imap_expunge($this->conn);
         $this->close();
@@ -205,6 +223,23 @@ class ImapClient {
         }
         $email = ($addr->mailbox ?? '') . '@' . ($addr->host ?? '');
         return ['name' => $name ?: $email, 'email' => $email];
+    }
+
+    // 自动检测回收站文件夹名
+    public function getTrashFolder() {
+        $candidates = ['Trash', 'INBOX.Trash', 'Deleted Items', 'Deleted Messages', '垃圾箱', '已删除', 'Junk'];
+        $flag = $this->ssl ? '/ssl/novalidate-cert' : '/notls';
+        $server = '{' . $this->host . ':' . $this->port . '/imap' . $flag . '}';
+        $list = @imap_list($this->conn, $server, '*');
+        if (!$list) return 'Trash';
+        foreach ($candidates as $name) {
+            foreach ($list as $folder) {
+                if (stripos($folder, $name) !== false) {
+                    return preg_replace('/^\{[^}]+\}/', '', $folder);
+                }
+            }
+        }
+        return 'Trash';
     }
 
     // 把邮件副本存入 Sent 文件夹（imap_append）

@@ -68,7 +68,8 @@
     // ── 邮件列表 ──────────────────────────────
     async getMessages(folder = 'inbox') {
       if (this._demo()) {
-        const key = folder === 'inbox' ? 'ppo_inbox' : 'ppo_sent';
+        const keyMap = { inbox: 'ppo_inbox', sent: 'ppo_sent', trash: 'ppo_trash' };
+        const key = keyMap[folder] || 'ppo_inbox';
         return JSON.parse(localStorage.getItem(key) || '[]');
       }
       try {
@@ -117,16 +118,51 @@
       } catch (e) { /* 标记失败不中断流程 */ }
     },
 
-    // ── 删除邮件 ──────────────────────────────
+    // ── 删除邮件（移入回收站）──────────────────
     async deleteMessage(id, folder = 'inbox') {
       if (this._demo()) {
-        ['ppo_inbox', 'ppo_sent'].forEach(key => {
-          const msgs = JSON.parse(localStorage.getItem(key) || '[]');
-          localStorage.setItem(key, JSON.stringify(msgs.filter(m => m.id !== id)));
-        });
+        const srcKey = folder === 'sent' ? 'ppo_sent' : 'ppo_inbox';
+        const srcMsgs = JSON.parse(localStorage.getItem(srcKey) || '[]');
+        const msg = srcMsgs.find(m => m.id === id);
+        if (msg) {
+          msg.deletedFrom = folder;
+          const trash = JSON.parse(localStorage.getItem('ppo_trash') || '[]');
+          trash.unshift(msg);
+          localStorage.setItem('ppo_trash', JSON.stringify(trash));
+          localStorage.setItem(srcKey, JSON.stringify(srcMsgs.filter(m => m.id !== id)));
+        }
         return;
       }
       await this._fetch('messages.php?id=' + encodeURIComponent(id) + '&folder=' + folder, { method: 'DELETE' });
+    },
+
+    // ── 从回收站恢复 ──────────────────────────
+    async restoreMessage(id) {
+      if (this._demo()) {
+        const trash = JSON.parse(localStorage.getItem('ppo_trash') || '[]');
+        const msg = trash.find(m => m.id === id);
+        if (msg) {
+          const destKey = msg.deletedFrom === 'sent' ? 'ppo_sent' : 'ppo_inbox';
+          const dest = JSON.parse(localStorage.getItem(destKey) || '[]');
+          const restored = { ...msg };
+          delete restored.deletedFrom;
+          dest.unshift(restored);
+          localStorage.setItem(destKey, JSON.stringify(dest));
+          localStorage.setItem('ppo_trash', JSON.stringify(trash.filter(m => m.id !== id)));
+        }
+        return;
+      }
+      await this._fetch('messages.php?action=restore&id=' + encodeURIComponent(id), { method: 'POST' });
+    },
+
+    // ── 从回收站永久删除 ──────────────────────
+    async purgeMessage(id) {
+      if (this._demo()) {
+        const trash = JSON.parse(localStorage.getItem('ppo_trash') || '[]');
+        localStorage.setItem('ppo_trash', JSON.stringify(trash.filter(m => m.id !== id)));
+        return;
+      }
+      await this._fetch('messages.php?id=' + encodeURIComponent(id) + '&folder=trash&action=purge', { method: 'DELETE' });
     },
 
     // ── 发送邮件 ──────────────────────────────
