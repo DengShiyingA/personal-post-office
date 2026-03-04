@@ -12,3 +12,9 @@
 
 # 日志
 *.log
+
+# 服务器运行时生成的文件（不跟踪，避免 git 冲突）
+dist/api/server.json
+dist/api/sessions/
+dist/api/data/
+dist/api/php_error.log
