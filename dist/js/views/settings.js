@@ -6,7 +6,6 @@ window.settingsView = {
 
   render() {
     const user = store.getState().user || {};
-    const cfg = api.getServerConfig();
     return `
     <div class="settings-body">
       <div class="settings-layout">
@@ -15,12 +14,6 @@ window.settingsView = {
         <div class="settings-sidebar-nav">
           <div class="settings-nav-item active" data-section="profile" onclick="settingsView._switchSection('profile', this)">
             <span class="sni-icon">👤</span> 账号信息
-          </div>
-          <div class="settings-nav-item" data-section="server" onclick="settingsView._switchSection('server', this)">
-            <span class="sni-icon">🖥</span> 服务器配置
-          </div>
-          <div class="settings-nav-item" data-section="notify" onclick="settingsView._switchSection('notify', this)">
-            <span class="sni-icon">🔔</span> 通知设置
           </div>
           <div class="settings-nav-item" data-section="appearance" onclick="settingsView._switchSection('appearance', this)">
             <span class="sni-icon">🎨</span> 外观
@@ -72,104 +65,6 @@ window.settingsView = {
             </div>
           </div>
 
-          <!-- 服务器配置 -->
-          <div class="settings-section" id="section-server">
-            <div class="settings-card">
-              <div class="settings-card-title">宝塔邮局服务器配置</div>
-
-              <div class="settings-row">
-                <div>
-                  <div class="settings-row-label">连接状态</div>
-                  <div class="settings-row-desc">实时检测服务器连接</div>
-                </div>
-                <div class="server-status" id="serverStatus">
-                  <div class="status-dot disconnected" id="statusDot"></div>
-                  <span id="statusText">未连接</span>
-                </div>
-              </div>
-
-              <div class="settings-row">
-                <div class="settings-row-label">服务器地址</div>
-                <input class="input" id="cfgHost" value="${_escHtml(cfg.host)}"
-                  placeholder="mail.example.com 或 IP 地址" style="max-width:280px" />
-              </div>
-              <div class="settings-row">
-                <div class="settings-row-label">SMTP 端口</div>
-                <input class="input" id="cfgSmtp" type="number" value="${cfg.smtpPort}"
-                  placeholder="465 (SSL) / 587 (TLS)" style="max-width:120px" />
-              </div>
-              <div class="settings-row">
-                <div class="settings-row-label">IMAP 端口</div>
-                <input class="input" id="cfgImap" type="number" value="${cfg.imapPort}"
-                  placeholder="993 (SSL) / 143" style="max-width:120px" />
-              </div>
-              <div class="settings-row">
-                <div class="settings-row-label">SSL/TLS</div>
-                <label class="toggle">
-                  <input type="checkbox" id="cfgSsl" ${cfg.ssl ? 'checked' : ''} />
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-              <div class="settings-row">
-                <div class="settings-row-label">邮箱账号</div>
-                <input class="input" id="cfgUser" value="${_escHtml(cfg.username)}"
-                  placeholder="your@domain.com" style="max-width:280px" />
-              </div>
-              <div class="settings-row">
-                <div class="settings-row-label">密码</div>
-                <input class="input" id="cfgPass" type="password" value="${_escHtml(cfg.password)}"
-                  placeholder="邮箱密码或应用专用密码" style="max-width:280px" />
-              </div>
-              <div class="settings-row" style="border-bottom:none">
-                <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">
-                  💡 配置完成后点击「测试连接」验证，成功后保存即可对接宝塔邮局管理器。
-                </div>
-                <div style="display:flex;gap:10px">
-                  <button class="btn btn-secondary" onclick="settingsView._testConn()">测试连接</button>
-                  <button class="btn btn-primary" onclick="settingsView._saveServer()">保存配置</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="settings-card">
-              <div class="settings-card-title">如何查找宝塔邮局配置</div>
-              <div style="padding:16px 20px;font-size:14px;line-height:1.8;color:var(--text-secondary)">
-                <div>1. 登录宝塔面板 → 左侧菜单 → <b>邮局管理器</b></div>
-                <div>2. 查看 SMTP/IMAP 端口和服务器地址</div>
-                <div>3. 使用面板中创建的邮箱账号和密码</div>
-                <div>4. 若开启了 SSL，端口通常为 <b>SMTP: 465</b>，<b>IMAP: 993</b></div>
-                <div style="margin-top:10px;padding:10px 14px;background:var(--bg);border-radius:var(--r-sm);font-family:var(--font-mono);font-size:12px">
-                  服务器：mail.你的域名.com<br/>
-                  SMTP：465 (SSL) 或 587 (TLS)<br/>
-                  IMAP：993 (SSL) 或 143
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 通知设置 -->
-          <div class="settings-section" id="section-notify">
-            <div class="settings-card">
-              <div class="settings-card-title">通知设置</div>
-              ${[
-                ['新邮件通知', '收到新信件时推送通知'],
-                ['信件签收提醒', '信件被对方签收时通知'],
-                ['在途状态更新', '追踪状态变更时通知'],
-                ['每日摘要', '每天早上汇总未读信件']
-              ].map(([label, desc], i) => `
-              <div class="settings-row" ${i === 3 ? 'style="border-bottom:none"' : ''}>
-                <div>
-                  <div class="settings-row-label">${label}</div>
-                  <div class="settings-row-desc">${desc}</div>
-                </div>
-                <label class="toggle settings-row-control">
-                  <input type="checkbox" ${i < 3 ? 'checked' : ''} />
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>`).join('')}
-            </div>
-          </div>
-
           <!-- 外观 -->
           <div class="settings-section" id="section-appearance">
             <div class="settings-card">
@@ -214,16 +109,6 @@ window.settingsView = {
                 </div>
               </div>
             </div>
-            <div class="settings-card">
-              <div class="settings-card-title">数据管理</div>
-              <div class="settings-row" style="border-bottom:none">
-                <div>
-                  <div class="settings-row-label">重置演示数据</div>
-                  <div class="settings-row-desc">清空并重新初始化 Mock 数据</div>
-                </div>
-                <button class="btn btn-danger" onclick="settingsView._resetData()">重置数据</button>
-              </div>
-            </div>
           </div>
 
         </div>
@@ -231,24 +116,7 @@ window.settingsView = {
     </div>`;
   },
 
-  async init() {
-    // 从 PHP 加载服务器配置，并刷新表单
-    try {
-      const cfg = await api.loadServerConfig();
-      if (cfg && cfg.host) {
-        const h = document.getElementById('cfgHost');
-        const su = document.getElementById('cfgSmtp');
-        const iu = document.getElementById('cfgImap');
-        const sl = document.getElementById('cfgSsl');
-        const u  = document.getElementById('cfgUser');
-        if (h)  h.value  = cfg.host || '';
-        if (su) su.value = cfg.smtpPort || 465;
-        if (iu) iu.value = cfg.imapPort || 993;
-        if (sl) sl.checked = cfg.ssl !== false;
-        if (u)  u.value  = cfg.username || '';
-      }
-    } catch (e) { /* PHP 不可用，使用 localStorage */ }
-  },
+  init() {},
 
   _switchSection(name, el) {
     document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
@@ -271,57 +139,8 @@ window.settingsView = {
     showToast('✓ 信息已保存');
   },
 
-  _saveServer() {
-    const config = {
-      host: document.getElementById('cfgHost').value.trim(),
-      smtpPort: parseInt(document.getElementById('cfgSmtp').value) || 465,
-      imapPort: parseInt(document.getElementById('cfgImap').value) || 993,
-      ssl: document.getElementById('cfgSsl').checked,
-      username: document.getElementById('cfgUser').value.trim(),
-      password: document.getElementById('cfgPass').value
-    };
-    api.saveServerConfig(config).then(() => showToast('✓ 服务器配置已保存'));
-  },
-
-  _testConn() {
-    const dot = document.getElementById('statusDot');
-    const txt = document.getElementById('statusText');
-    if (!dot || !txt) return;
-    dot.className = 'status-dot connecting';
-    txt.textContent = '连接中…';
-    const config = {
-      host: document.getElementById('cfgHost').value.trim(),
-      smtpPort: parseInt(document.getElementById('cfgSmtp').value) || 465,
-      imapPort: parseInt(document.getElementById('cfgImap').value) || 993,
-      ssl: document.getElementById('cfgSsl').checked,
-      username: document.getElementById('cfgUser').value.trim(),
-      password: document.getElementById('cfgPass').value
-    };
-    api.testConnection(config).then(res => {
-      if (res.success) {
-        dot.className = 'status-dot connected';
-        txt.textContent = '已连接';
-        showToast('✓ 连接成功！');
-      } else {
-        dot.className = 'status-dot disconnected';
-        txt.textContent = '连接失败';
-        showToast('⚠️ ' + res.message);
-      }
-    });
-  },
-
   _setAccent(color) {
     document.documentElement.style.setProperty('--accent', color);
     showToast('✓ 主题色已更新');
-  },
-
-  _resetData() {
-    if (!confirm('确定重置所有演示数据吗？此操作不可撤销。')) return;
-    localStorage.removeItem('ppo_mock_initialized');
-    localStorage.removeItem('ppo_inbox');
-    localStorage.removeItem('ppo_sent');
-    localStorage.removeItem('ppo_contacts');
-    localStorage.removeItem('ppo_tracking');
-    window.location.reload();
   }
 };
