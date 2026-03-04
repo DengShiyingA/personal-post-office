@@ -58,7 +58,6 @@ window.composeView = {
   },
 
   _clear() {
-    if (!confirm('确定清空内容吗？')) return;
     ['composeTo', 'composeSubject'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
