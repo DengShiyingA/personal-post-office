@@ -6,7 +6,7 @@
 cd /www/wwwroot/two.edu.kg
 
 echo "🔄 拉取最新代码..."
-git fetch origin
-git reset --hard origin/main
+git fetch origin main
+git reset --hard FETCH_HEAD
 
 echo "✅ 更新完成！"
