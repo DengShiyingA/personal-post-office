@@ -73,7 +73,9 @@
       }
       try {
         const result = await this._fetch('messages.php?folder=' + folder);
-        return result.messages || [];
+        const msgs = result.messages || [];
+        if (folder === 'inbox') this._cachedInbox = msgs;
+        return msgs;
       } catch (e) {
         console.error('getMessages 失败:', e);
         return [];
@@ -178,9 +180,11 @@
         return inbox.filter(m => m.unread).length;
       }
       try {
+        const msgs = this._cachedInbox;
+        if (msgs) return msgs.filter(m => m.unread).length;
         const result = await this._fetch('messages.php?folder=inbox');
-        const msgs = result.messages || [];
-        return msgs.filter(m => m.unread).length;
+        this._cachedInbox = result.messages || [];
+        return this._cachedInbox.filter(m => m.unread).length;
       } catch (e) {
         return 0;
       }

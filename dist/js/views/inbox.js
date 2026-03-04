@@ -43,7 +43,7 @@ window.inboxView = {
       const filtered = this._messages.filter(m =>
         m.from.toLowerCase().includes(q) ||
         m.subject.toLowerCase().includes(q) ||
-        m.body.toLowerCase().includes(q)
+        (m.body || '').toLowerCase().includes(q)
       );
       this._renderList(filtered);
     });
@@ -64,7 +64,7 @@ window.inboxView = {
           <span class="msg-time">${_formatDate(m.date)}</span>
         </div>
         <div class="msg-subject">${escHtml(m.subject)}</div>
-        <div class="msg-preview">${escHtml(m.body.slice(0, 60))}…</div>
+        <div class="msg-preview">${escHtml((m.preview || m.body || '').slice(0, 60))}</div>
       </div>
     `).join('');
   },
@@ -127,7 +127,7 @@ window.inboxView = {
           </div>
         </div>
         ${trackingHtml}
-        <div class="detail-body">${escHtml(msg.body)}</div>
+        <div class="detail-body">${escHtml(msg.body || '')}</div>
       `;
     });
   },
