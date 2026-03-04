@@ -178,13 +178,12 @@ function _renderMailBody(containerId, body, bodyType) {
     (bodyType !== 'plain' && /<(html|body|div|table|td|p|span|br|img|style|font)\b/i.test(body));
 
   if (isHtml) {
-    // 外层容器去掉 padding，让 iframe 填满
     wrap.style.padding = '0';
 
     const iframe = document.createElement('iframe');
     iframe.sandbox = 'allow-same-origin';
     iframe.scrolling = 'no';
-    iframe.style.cssText = 'width:100%;border:none;display:block;min-height:120px;';
+    iframe.style.cssText = 'width:100%;border:none;display:block;min-height:200px;';
     wrap.appendChild(iframe);
 
     const doc = iframe.contentDocument || iframe.contentWindow.document;
@@ -202,17 +201,25 @@ function _renderMailBody(containerId, body, bodyType) {
 </style></head><body>${body}</body></html>`);
     doc.close();
 
-    // 撑高 iframe 以匹配内容，使外层滚动
     function resize() {
       try {
-        const h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+        const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
         if (h > 0) iframe.style.height = h + 'px';
       } catch(e) {}
     }
+    // 多次尝试，覆盖图片异步加载后高度变化
+    setTimeout(resize, 0);
+    setTimeout(resize, 300);
+    setTimeout(resize, 1000);
+    setTimeout(resize, 2500);
     iframe.addEventListener('load', resize);
-    setTimeout(resize, 100);
-    setTimeout(resize, 400);
-    setTimeout(resize, 1200);
+    // 监听 iframe 内图片加载
+    iframe.addEventListener('load', () => {
+      try {
+        const imgs = doc.querySelectorAll('img');
+        imgs.forEach(img => { if (!img.complete) img.addEventListener('load', resize); });
+      } catch(e) {}
+    });
   } else {
     wrap.style.whiteSpace = 'pre-wrap';
     wrap.textContent = body || '（无正文）';
