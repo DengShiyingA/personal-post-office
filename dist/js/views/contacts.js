@@ -7,8 +7,14 @@ window.contactsView = {
   render() {
     return `
     <div class="contacts-body">
+      <div class="contacts-header">
+        <div style="font-size:13px;color:var(--text-tertiary)" id="contactsCount"></div>
+        <button class="btn btn-primary" style="font-size:13px;padding:7px 14px" onclick="contactsView._openModal()">
+          ＋ 添加联系人
+        </button>
+      </div>
       <div id="contactsGrid" class="contacts-grid">
-        <div style="padding:40px;text-align:center;color:var(--text-secondary)">加载中…</div>
+        <div style="padding:40px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
       </div>
     </div>
 
@@ -19,7 +25,7 @@ window.contactsView = {
           <div class="modal-title" id="contactModalTitle">添加联系人</div>
           <div class="modal-close" onclick="contactsView._closeModal()">×</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:12px">
           <input type="hidden" id="contactId" />
           <div>
             <div class="form-label">姓名 *</div>
@@ -41,7 +47,7 @@ window.contactsView = {
             <div class="form-label">备注</div>
             <input class="input" id="contactNote" placeholder="例：大学同学" />
           </div>
-          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
             <button class="btn btn-secondary" onclick="contactsView._closeModal()">取消</button>
             <button class="btn btn-primary" onclick="contactsView._save()">保存</button>
           </div>
@@ -58,6 +64,8 @@ window.contactsView = {
     api.getContacts().then(contacts => {
       this._contacts = contacts;
       this._renderGrid(contacts);
+      const el = document.getElementById('contactsCount');
+      if (el) el.textContent = contacts.length ? `共 ${contacts.length} 位联系人` : '';
     });
   },
 
@@ -65,15 +73,24 @@ window.contactsView = {
     const el = document.getElementById('contactsGrid');
     if (!el) return;
 
+    if (!contacts.length) {
+      el.innerHTML = `
+        <div class="add-contact-card" onclick="contactsView._openModal()">
+          <div class="add-icon">＋</div>
+          <span>添加第一位联系人</span>
+        </div>`;
+      return;
+    }
+
     const cards = contacts.map(c => `
       <div class="contact-card">
-        <div class="contact-avatar" style="background:${_avatarColor(c.name)}">${c.name.charAt(0)}</div>
+        <div class="contact-avatar" style="background:${_avatarColor(c.name)}">${c.name.charAt(0).toUpperCase()}</div>
         <div class="contact-name">${_escHtml(c.name)}</div>
         <div class="contact-email">${_escHtml(c.email || '—')}</div>
-        <div class="contact-city">${c.city ? '📍 ' + _escHtml(c.city) : ''} ${c.note ? '· ' + _escHtml(c.note) : ''}</div>
+        <div class="contact-city">${c.city ? '📍 ' + _escHtml(c.city) : ''} ${c.note ? '<span style="color:var(--text-tertiary)">· ' + _escHtml(c.note) + '</span>' : ''}</div>
         <div class="contact-actions">
           <button class="btn btn-secondary" style="font-size:12px;padding:5px 10px"
-            onclick="contactsView._compose('${c.name}')">✍️ 写信</button>
+            onclick="contactsView._compose('${_escHtml(c.email || c.name)}')">✍️ 写信</button>
           <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px"
             onclick="contactsView._edit('${c.id}')">编辑</button>
           <button class="btn btn-danger" style="font-size:12px;padding:5px 10px"
@@ -89,24 +106,24 @@ window.contactsView = {
       </div>`;
   },
 
-  _compose(name) {
-    localStorage.setItem('ppo_compose_to', name);
+  _compose(emailOrName) {
     router.go('compose');
     setTimeout(() => {
       const el = document.getElementById('composeTo');
-      if (el) { el.value = name; }
-    }, 100);
+      if (el) el.value = emailOrName;
+    }, 80);
   },
 
   _openModal(contact = null) {
     document.getElementById('contactId').value = contact ? contact.id : '';
     document.getElementById('contactName').value = contact ? contact.name : '';
-    document.getElementById('contactEmail').value = contact ? contact.email : '';
-    document.getElementById('contactPhone').value = contact ? contact.phone : '';
-    document.getElementById('contactCity').value = contact ? contact.city : '';
-    document.getElementById('contactNote').value = contact ? contact.note : '';
+    document.getElementById('contactEmail').value = contact ? (contact.email || '') : '';
+    document.getElementById('contactPhone').value = contact ? (contact.phone || '') : '';
+    document.getElementById('contactCity').value = contact ? (contact.city || '') : '';
+    document.getElementById('contactNote').value = contact ? (contact.note || '') : '';
     document.getElementById('contactModalTitle').textContent = contact ? '编辑联系人' : '添加联系人';
     document.getElementById('contactModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('contactName').focus(), 50);
   },
 
   _closeModal() {

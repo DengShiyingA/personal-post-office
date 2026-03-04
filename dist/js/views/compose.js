@@ -9,31 +9,27 @@ window.composeView = {
       <div class="compose-card">
 
         <div class="compose-toolbar">
-          <div class="compose-toolbar-title">✍️ 新建信件</div>
+          <div class="compose-toolbar-title">新建信件</div>
         </div>
 
-        <!-- 收件人 -->
         <div class="compose-field">
           <span class="compose-field-label">收件人</span>
-          <input class="input" id="composeTo" type="email" placeholder="收件人邮箱地址" />
+          <input class="input" id="composeTo" type="email" placeholder="收件人邮箱地址" autocomplete="email" />
         </div>
 
-        <!-- 主题 -->
         <div class="compose-field">
           <span class="compose-field-label">主题</span>
           <input class="input" id="composeSubject" type="text" placeholder="邮件主题（选填）" />
         </div>
 
-        <!-- 正文编辑器 -->
         <div class="compose-editor-wrap">
           <div class="compose-editor" id="composeBody" contenteditable="true"
                data-placeholder="在这里写下你想说的话…"></div>
         </div>
 
-        <!-- 发送栏 -->
         <div class="compose-send-bar">
-          <div></div>
-          <div style="display:flex;gap:10px">
+          <div style="font-size:12px;color:var(--text-tertiary)" id="composeSaveHint"></div>
+          <div style="display:flex;gap:8px">
             <button class="btn btn-secondary" onclick="composeView._clear()">清空</button>
             <button class="btn btn-primary" id="sendBtn" onclick="composeView._send()">
               📮 发送
@@ -83,12 +79,12 @@ window.composeView = {
       toEmail: to,
       subject: subject || '（无主题）',
       body
-    }).then(res => {
+    }).then(() => {
       showToast('✓ 邮件已发送！');
       this._clear();
       btn.textContent = '📮 发送';
       btn.disabled = false;
-      setTimeout(() => router.go('sent'), 1500);
+      setTimeout(() => router.go('sent'), 1200);
     }).catch(e => {
       showToast('✗ 发送失败：' + (e.message || '未知错误'));
       btn.textContent = '📮 发送';

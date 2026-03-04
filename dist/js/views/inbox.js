@@ -12,12 +12,12 @@ window.inboxView = {
       <div class="message-list-pane">
         <div class="list-toolbar">
           <div class="search-bar" style="flex:1">
-            <span>🔍</span>
+            <span style="font-size:13px;opacity:.5">🔍</span>
             <input type="text" placeholder="搜索收件箱…" id="inboxSearch" />
           </div>
         </div>
         <div class="message-list" id="inboxList">
-          <div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:14px;">加载中…</div>
+          <div style="padding:36px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
         </div>
       </div>
 
@@ -53,25 +53,27 @@ window.inboxView = {
     const el = document.getElementById('inboxList');
     if (!el) return;
     if (!msgs.length) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><h3>收件箱为空</h3><p>你还没有收到任何信件</p></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><h3>收件箱为空</h3><p>还没有收到任何信件</p></div>`;
       return;
     }
     el.innerHTML = msgs.map(m => `
       <div class="message-item ${m.unread ? 'unread' : ''} ${this._selectedId === m.id ? 'active' : ''}"
            data-id="${m.id}" onclick="inboxView._showDetail('${m.id}')">
-        <div class="msg-row1">
-          <span class="msg-from">${escHtml(m.from)}</span>
-          <span class="msg-time">${_formatDate(m.date)}</span>
+        <div class="msg-avatar" style="background:${_avatarColor(m.from)}">${(m.from || '?').charAt(0).toUpperCase()}</div>
+        <div class="msg-content">
+          <div class="msg-row1">
+            <span class="msg-from">${escHtml(m.from)}</span>
+            <span class="msg-time">${_formatDate(m.date)}</span>
+          </div>
+          <div class="msg-subject">${escHtml(m.subject)}</div>
+          <div class="msg-preview">${escHtml((m.preview || m.body || '').slice(0, 60))}</div>
         </div>
-        <div class="msg-subject">${escHtml(m.subject)}</div>
-        <div class="msg-preview">${escHtml((m.preview || m.body || '').slice(0, 60))}</div>
       </div>
     `).join('');
   },
 
   _showDetail(id) {
     this._selectedId = id;
-    // 高亮选中
     document.querySelectorAll('#inboxList .message-item').forEach(el => {
       el.classList.toggle('active', el.dataset.id === id);
     });
@@ -79,12 +81,10 @@ window.inboxView = {
     api.getMessage(id).then(msg => {
       if (!msg) return;
       api.markRead(id).then(() => {
-        // 更新未读标记
         const item = document.querySelector(`#inboxList [data-id="${id}"]`);
         if (item) item.classList.remove('unread');
         const idx = this._messages.findIndex(m => m.id === id);
         if (idx >= 0) this._messages[idx].unread = false;
-        // 更新 badge
         const unread = this._messages.filter(m => m.unread).length;
         const badge = document.getElementById('inboxBadge');
         if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? '' : 'none'; }
@@ -93,21 +93,24 @@ window.inboxView = {
       const det = document.getElementById('inboxDetail');
       if (!det) return;
 
-      const trackingHtml = '';
-
       det.innerHTML = `
         <div class="detail-header">
           <div class="detail-subject">${escHtml(msg.subject)}</div>
           <div class="detail-meta">
-            <div class="detail-meta-row"><span class="meta-label">发件人</span><span class="meta-value">${escHtml(msg.from)} &lt;${escHtml(msg.fromEmail)}&gt;</span></div>
-            <div class="detail-meta-row"><span class="meta-label">日期</span><span class="meta-value">${new Date(msg.date).toLocaleString('zh-CN')}</span></div>
+            <div class="detail-meta-row">
+              <span class="meta-label">发件人</span>
+              <span class="meta-value">${escHtml(msg.from)}${msg.fromEmail ? ' &lt;' + escHtml(msg.fromEmail) + '&gt;' : ''}</span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="meta-label">时间</span>
+              <span class="meta-value">${new Date(msg.date).toLocaleString('zh-CN')}</span>
+            </div>
           </div>
           <div class="detail-actions">
-            <button class="btn btn-secondary" onclick="composeView._replyTo('${escHtml(msg.fromEmail)}');router.go('compose')">↩ 回复</button>
+            <button class="btn btn-secondary" onclick="composeView._replyTo('${escHtml(msg.fromEmail || msg.from)}');router.go('compose')">↩ 回复</button>
             <button class="btn btn-danger" onclick="inboxView._delete('${msg.id}')">🗑 删除</button>
           </div>
         </div>
-        ${trackingHtml}
         <div class="detail-body">${escHtml(msg.body || '')}</div>
       `;
     });
@@ -121,12 +124,10 @@ window.inboxView = {
       this._renderList(this._messages);
       document.getElementById('inboxDetail').innerHTML = `
         <div class="detail-empty"><div class="di-icon">📬</div><p>选择一封信件查看详情</p></div>`;
-      showToast('✓ 信件已删除');
+      showToast('✓ 已移入回收站');
     });
   }
 };
 
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-window._escHtml = escHtml;
+// _escHtml 由 dashboard.js 定义并挂载到 window
+var escHtml = window._escHtml || function(s){ return String(s||''); };

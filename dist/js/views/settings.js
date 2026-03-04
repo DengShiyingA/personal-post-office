@@ -6,6 +6,7 @@ window.settingsView = {
 
   render() {
     const user = store.getState().user || {};
+    const initial = (user.avatar || (user.name || 'U').charAt(0)).toUpperCase();
     return `
     <div class="settings-body">
       <div class="settings-layout">
@@ -31,34 +32,30 @@ window.settingsView = {
             <div class="settings-card">
               <div class="settings-card-title">账号信息</div>
               <div class="settings-row">
-                <div>
-                  <div class="settings-row-label">头像</div>
-                </div>
-                <div class="settings-row-control">
-                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#34aadc);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff">
-                    ${user.avatar || (user.name || 'U').charAt(0)}
-                  </div>
+                <div class="settings-row-label">头像</div>
+                <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#34aadc);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">
+                  ${initial}
                 </div>
               </div>
               <div class="settings-row">
                 <div class="settings-row-label">姓名</div>
-                <input class="input" id="settingName" value="${_escHtml(user.name || '')}" style="max-width:240px" />
-              </div>
-              <div class="settings-row">
-                <div class="settings-row-label">邮箱</div>
-                <div style="font-size:14px;color:var(--text-secondary)">${_escHtml(user.email || '')}</div>
+                <input class="input" id="settingName" value="${_escHtml(user.name || '')}" style="max-width:220px" />
               </div>
               <div class="settings-row" style="border-bottom:none">
-                <div></div>
-                <button class="btn btn-primary" onclick="settingsView._saveProfile()">保存信息</button>
+                <div class="settings-row-label">邮箱</div>
+                <div style="font-size:13.5px;color:var(--text-secondary)">${_escHtml(user.email || '')}</div>
               </div>
             </div>
             <div class="settings-card">
-              <div class="settings-card-title">账号操作</div>
+              <div class="settings-card-title">操作</div>
+              <div class="settings-row">
+                <div></div>
+                <button class="btn btn-primary" onclick="settingsView._saveProfile()">保存</button>
+              </div>
               <div class="settings-row" style="border-bottom:none">
                 <div>
                   <div class="settings-row-label">退出登录</div>
-                  <div class="settings-row-desc">将清除本地登录状态</div>
+                  <div class="settings-row-desc">清除本地登录状态</div>
                 </div>
                 <button class="btn btn-danger" onclick="api.logout()">退出登录</button>
               </div>
@@ -72,23 +69,22 @@ window.settingsView = {
               <div class="settings-row">
                 <div>
                   <div class="settings-row-label">主题色</div>
-                  <div class="settings-row-desc">当前：苹果蓝</div>
                 </div>
-                <div style="display:flex;gap:8px">
-                  ${['#0071e3','#34c759','#ff9f0a','#ff3b30','#af52de'].map(c => `
+                <div style="display:flex;gap:8px;align-items:center">
+                  ${['#0071e3','#34c759','#ff9f0a','#ff3b30','#af52de','#5e5ce6'].map(c => `
                     <div onclick="settingsView._setAccent('${c}')"
-                      style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;
-                             border:2px solid transparent;transition:.15s"
-                      onmouseover="this.style.borderColor='#888'" onmouseout="this.style.borderColor='transparent'">
+                      style="width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;
+                             transition:.15s;box-shadow:0 1px 4px rgba(0,0,0,.2)"
+                      onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
                     </div>`).join('')}
                 </div>
               </div>
               <div class="settings-row" style="border-bottom:none">
                 <div>
                   <div class="settings-row-label">侧边栏宽度</div>
-                  <div class="settings-row-desc">拖动调整侧边栏</div>
+                  <div class="settings-row-desc">拖动调整</div>
                 </div>
-                <input type="range" min="180" max="280" value="220"
+                <input type="range" min="180" max="280" value="220" style="width:120px"
                   oninput="document.documentElement.style.setProperty('--sidebar-w', this.value + 'px')" />
               </div>
             </div>
@@ -98,11 +94,11 @@ window.settingsView = {
           <div class="settings-section" id="section-about">
             <div class="settings-card">
               <div class="settings-card-title">关于个人邮局</div>
-              <div style="padding:28px 20px;text-align:center">
-                <div style="font-size:48px;margin-bottom:12px">✉️</div>
-                <div style="font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px">个人邮局</div>
-                <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px">Personal Post Office · v1.0.0</div>
-                <div style="font-size:14px;color:var(--text-secondary);line-height:1.8;max-width:360px;margin:0 auto">
+              <div style="padding:32px 20px;text-align:center">
+                <div style="font-size:44px;margin-bottom:14px;filter:drop-shadow(0 4px 12px rgba(0,113,227,.2))">✉️</div>
+                <div style="font-size:19px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px">个人邮局</div>
+                <div style="font-size:12.5px;color:var(--text-tertiary);margin-bottom:22px;letter-spacing:.02em">Personal Post Office · v1.0.0</div>
+                <div style="font-size:13.5px;color:var(--text-secondary);line-height:1.9;max-width:320px;margin:0 auto">
                   让每一封信都有温度。<br/>
                   支持对接宝塔邮局管理器，<br/>
                   在数字时代重新找回写信的仪式感。

@@ -3,14 +3,17 @@
 ═══════════════════════════════════════ */
 window.dashboardView = {
   render() {
+    const hour = new Date().getHours();
+    const greeting = hour < 6 ? '夜深了' : hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好';
     return `
     <div class="dashboard-body" id="dashboardBody">
 
       <!-- 欢迎横幅 -->
-      <div class="welcome-banner" id="welcomeBanner">
-        <h2>早上好，<span id="dashUserName">朋友</span> 👋</h2>
-        <p>你有 <b id="dashUnread">0</b> 封未读信件。</p>
-        <button class="btn btn-primary" onclick="router.go('compose')" style="background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.4);">
+      <div class="welcome-banner">
+        <h2>${greeting}，<span id="dashUserName">朋友</span> 👋</h2>
+        <p>你有 <b id="dashUnread">0</b> 封未读信件</p>
+        <button class="btn" onclick="router.go('compose')"
+          style="background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);color:#fff;font-weight:600;backdrop-filter:blur(8px)">
           ✍️ 立即写信
         </button>
       </div>
@@ -27,13 +30,13 @@ window.dashboardView = {
           <span class="stat-icon">📤</span>
           <div class="stat-value" id="statSent">–</div>
           <div class="stat-name">已发送</div>
-          <div class="stat-trend">↑ 保持联系中</div>
+          <div class="stat-trend" style="color:var(--text-tertiary)">保持联系中</div>
         </div>
         <div class="stat-card">
           <span class="stat-icon">👥</span>
           <div class="stat-value" id="statContacts">–</div>
           <div class="stat-name">联系人</div>
-          <div class="stat-trend">地址簿</div>
+          <div class="stat-trend" style="color:var(--text-tertiary)">地址簿</div>
         </div>
       </div>
 
@@ -43,10 +46,10 @@ window.dashboardView = {
         <div class="section-card">
           <div class="section-card-header">
             <div class="section-card-title">最近信件</div>
-            <span class="section-card-link" onclick="router.go('inbox')">查看全部</span>
+            <span class="section-card-link" onclick="router.go('inbox')">查看全部 →</span>
           </div>
           <div class="recent-list" id="recentList">
-            <div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:14px;">加载中…</div>
+            <div style="padding:36px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
           </div>
         </div>
 
@@ -73,8 +76,8 @@ window.dashboardView = {
             <button class="quick-btn" onclick="router.go('settings')">
               <span class="qb-icon">⚙️</span>
               <div>
-                <div>服务器设置</div>
-                <div class="qb-desc">配置宝塔邮局连接</div>
+                <div>设置</div>
+                <div class="qb-desc">账号信息与外观</div>
               </div>
             </button>
           </div>
@@ -90,7 +93,6 @@ window.dashboardView = {
       document.getElementById('dashUserName').textContent = user.name;
     }
 
-    // 加载统计数据
     Promise.all([
       api.getMessages('inbox'),
       api.getMessages('sent'),
@@ -105,19 +107,18 @@ window.dashboardView = {
       document.getElementById('statUnreadHint').textContent = unread > 0 ? `● ${unread} 封未读` : '全部已读';
       document.getElementById('statUnreadHint').style.color = unread > 0 ? 'var(--accent)' : 'var(--success)';
 
-      // 最近信件列表（合并 inbox + sent，取最新6条）
       const all = [...inbox.map(m => ({...m, dir:'inbox'})), ...sent.map(m => ({...m, dir:'sent'}))]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 6);
 
-      document.getElementById('recentList').innerHTML = all.length ? all.map(msg => `
+      document.getElementById('recentList').innerHTML = all.length ? all.map(msg => {
+        const who = msg.dir === 'inbox' ? msg.from : msg.to;
+        return `
         <div class="recent-item" onclick="router.go('${msg.dir}')">
-          <div class="recent-avatar" style="background:${avatarColor(msg.dir === 'inbox' ? msg.from : msg.to)}">
-            ${(msg.dir === 'inbox' ? msg.from : msg.to).charAt(0)}
-          </div>
+          <div class="recent-avatar" style="background:${avatarColor(who)}">${(who || '?').charAt(0).toUpperCase()}</div>
           <div class="recent-info">
-            <div class="recent-name">${msg.dir === 'inbox' ? msg.from : '→ ' + msg.to}</div>
-            <div class="recent-preview">${msg.subject}</div>
+            <div class="recent-name">${msg.dir === 'inbox' ? _escHtml(msg.from) : '→ ' + _escHtml(msg.to)}</div>
+            <div class="recent-preview">${_escHtml(msg.subject)}</div>
           </div>
           <div class="recent-meta">
             <div class="recent-time">${formatDate(msg.date)}</div>
@@ -125,8 +126,8 @@ window.dashboardView = {
               ${msg.dir === 'inbox' ? '收件' : '已发'}
             </span>
           </div>
-        </div>
-      `).join('') : '<div class="empty-state" style="padding:40px"><p>暂无邮件</p></div>';
+        </div>`;
+      }).join('') : `<div class="empty-state" style="padding:36px"><div class="empty-icon">📭</div><p>暂无邮件</p></div>`;
     });
   }
 };
@@ -146,8 +147,12 @@ function formatDate(iso) {
 const COLORS = ['#0071e3','#34aadc','#5e5ce6','#ff9f0a','#34c759','#ff6b6b','#af52de'];
 function avatarColor(name) {
   let h = 0;
-  for (let i = 0; i < name.length; i++) h += name.charCodeAt(i);
+  for (let i = 0; i < (name || '').length; i++) h += name.charCodeAt(i);
   return COLORS[h % COLORS.length];
+}
+function _escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 window._avatarColor = avatarColor;
 window._formatDate = formatDate;
+window._escHtml = _escHtml;

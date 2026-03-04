@@ -11,12 +11,12 @@ window.sentView = {
       <div class="message-list-pane">
         <div class="list-toolbar">
           <div class="search-bar" style="flex:1">
-            <span>🔍</span>
+            <span style="font-size:13px;opacity:.5">🔍</span>
             <input type="text" placeholder="搜索已发送…" id="sentSearch" />
           </div>
         </div>
         <div class="message-list" id="sentList">
-          <div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:14px;">加载中…</div>
+          <div style="padding:36px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
         </div>
       </div>
       <div class="message-detail-pane" id="sentDetail">
@@ -56,12 +56,15 @@ window.sentView = {
     el.innerHTML = msgs.map(m => `
       <div class="message-item ${this._selectedId === m.id ? 'active' : ''}"
            data-id="${m.id}" onclick="sentView._showDetail('${m.id}')">
-        <div class="msg-row1">
-          <span class="msg-from">→ ${_escHtml(m.to)}</span>
-          <span class="msg-time">${_formatDate(m.date)}</span>
+        <div class="msg-avatar" style="background:${_avatarColor(m.to)}">${(m.to || '?').charAt(0).toUpperCase()}</div>
+        <div class="msg-content">
+          <div class="msg-row1">
+            <span class="msg-from">→ ${_escHtml(m.to)}</span>
+            <span class="msg-time">${_formatDate(m.date)}</span>
+          </div>
+          <div class="msg-subject">${_escHtml(m.subject)}</div>
+          <div class="msg-preview">${_escHtml((m.preview || m.body || '').slice(0, 60))}</div>
         </div>
-        <div class="msg-subject">${_escHtml(m.subject)}</div>
-        <div class="msg-preview">${_escHtml((m.preview || m.body || '').slice(0, 60))}</div>
       </div>
     `).join('');
   },
@@ -81,8 +84,14 @@ window.sentView = {
         <div class="detail-header">
           <div class="detail-subject">${_escHtml(msg.subject)}</div>
           <div class="detail-meta">
-            <div class="detail-meta-row"><span class="meta-label">收件人</span><span class="meta-value">${_escHtml(msg.to)}</span></div>
-            <div class="detail-meta-row"><span class="meta-label">发送时间</span><span class="meta-value">${new Date(msg.date).toLocaleString('zh-CN')}</span></div>
+            <div class="detail-meta-row">
+              <span class="meta-label">收件人</span>
+              <span class="meta-value">${_escHtml(msg.to)}</span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="meta-label">时间</span>
+              <span class="meta-value">${new Date(msg.date).toLocaleString('zh-CN')}</span>
+            </div>
           </div>
           <div class="detail-actions">
             <button class="btn btn-danger" onclick="sentView._delete('${msg.id}')">🗑 删除</button>
@@ -101,7 +110,7 @@ window.sentView = {
       this._renderList(this._messages);
       document.getElementById('sentDetail').innerHTML = `
         <div class="detail-empty"><div class="di-icon">📤</div><p>选择一封已发信件查看详情</p></div>`;
-      showToast('✓ 记录已删除');
+      showToast('✓ 已移入回收站');
     });
   }
 };

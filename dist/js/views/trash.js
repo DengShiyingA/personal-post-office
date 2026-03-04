@@ -11,12 +11,12 @@ window.trashView = {
       <div class="message-list-pane">
         <div class="list-toolbar">
           <div class="search-bar" style="flex:1">
-            <span>🔍</span>
+            <span style="font-size:13px;opacity:.5">🔍</span>
             <input type="text" placeholder="搜索回收站…" id="trashSearch" />
           </div>
         </div>
         <div class="message-list" id="trashList">
-          <div style="padding:40px;text-align:center;color:var(--text-secondary);font-size:14px;">加载中…</div>
+          <div style="padding:36px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
         </div>
       </div>
       <div class="message-detail-pane" id="trashDetail">
@@ -54,16 +54,19 @@ window.trashView = {
       return;
     }
     el.innerHTML = msgs.map(m => {
-      const who = m.from ? _escHtml(m.from) : ('→ ' + _escHtml(m.to || ''));
+      const who = m.from || m.to || '未知';
       return `
       <div class="message-item ${this._selectedId === m.id ? 'active' : ''}"
            data-id="${m.id}" onclick="trashView._showDetail('${m.id}')">
-        <div class="msg-row1">
-          <span class="msg-from">${who}</span>
-          <span class="msg-time">${_formatDate(m.date)}</span>
+        <div class="msg-avatar" style="background:${_avatarColor(who)};opacity:.75">${who.charAt(0).toUpperCase()}</div>
+        <div class="msg-content">
+          <div class="msg-row1">
+            <span class="msg-from" style="opacity:.75">${m.from ? _escHtml(m.from) : '→ ' + _escHtml(m.to || '')}</span>
+            <span class="msg-time">${_formatDate(m.date)}</span>
+          </div>
+          <div class="msg-subject" style="opacity:.75">${_escHtml(m.subject || '（无主题）')}</div>
+          <div class="msg-preview">${_escHtml((m.preview || m.body || '').slice(0, 60))}</div>
         </div>
-        <div class="msg-subject">${_escHtml(m.subject || '（无主题）')}</div>
-        <div class="msg-preview">${_escHtml((m.preview || m.body || '').slice(0, 60))}</div>
       </div>`;
     }).join('');
   },
@@ -79,19 +82,17 @@ window.trashView = {
       const det = document.getElementById('trashDetail');
       if (!det) return;
 
-      // 判断来源（收件/已发送）
-      const from = msg.from || '';
-      const isReceived = !!from;
+      const isReceived = !!msg.from;
 
       det.innerHTML = `
         <div class="detail-header">
           <div class="detail-subject">${_escHtml(msg.subject || '（无主题）')}</div>
           <div class="detail-meta">
             ${isReceived
-              ? `<div class="detail-meta-row"><span class="meta-label">发件人</span><span class="meta-value">${_escHtml(msg.from)} &lt;${_escHtml(msg.fromEmail || '')}&gt;</span></div>`
+              ? `<div class="detail-meta-row"><span class="meta-label">发件人</span><span class="meta-value">${_escHtml(msg.from)}${msg.fromEmail ? ' &lt;' + _escHtml(msg.fromEmail) + '&gt;' : ''}</span></div>`
               : `<div class="detail-meta-row"><span class="meta-label">收件人</span><span class="meta-value">${_escHtml(msg.to || '')}</span></div>`
             }
-            <div class="detail-meta-row"><span class="meta-label">日期</span><span class="meta-value">${new Date(msg.date).toLocaleString('zh-CN')}</span></div>
+            <div class="detail-meta-row"><span class="meta-label">时间</span><span class="meta-value">${new Date(msg.date).toLocaleString('zh-CN')}</span></div>
           </div>
           <div class="detail-actions">
             <button class="btn btn-secondary" onclick="trashView._restore('${msg.id}')">↩ 恢复</button>
