@@ -44,8 +44,17 @@ if ($method === 'GET' && get('id')) {
     $uid = (int) str_replace('imap-', '', get('id'));
     if (!$cfg) ok(['demo' => true]);
     try {
+        $folder = get('folder', 'INBOX');
+        if ($folder === 'sent') {
+            $imap = new ImapClient($cfg, $sess['email'], $sess['password']);
+            $imap->connect();
+            $folder = $imap->getSentFolder();
+            $imap->close();
+        } elseif ($folder !== 'INBOX') {
+            $folder = 'INBOX';
+        }
         $imap = new ImapClient($cfg, $sess['email'], $sess['password']);
-        $msg  = $imap->getMessage($uid);
+        $msg  = $imap->getMessage($uid, $folder);
         ok(['demo' => false, 'message' => $msg]);
     } catch (Exception $e) {
         err($e->getMessage());
@@ -70,8 +79,17 @@ if ($method === 'DELETE') {
     $uid = (int) str_replace('imap-', '', get('id'));
     if (!$cfg) ok(['demo' => true]);
     try {
+        $folder = get('folder', 'INBOX');
+        if ($folder === 'sent') {
+            $imap = new ImapClient($cfg, $sess['email'], $sess['password']);
+            $imap->connect();
+            $sentFolder = $imap->getSentFolder();
+            $imap->close();
+        } else {
+            $sentFolder = 'INBOX';
+        }
         $imap = new ImapClient($cfg, $sess['email'], $sess['password']);
-        $imap->deleteMessage($uid);
+        $imap->deleteMessage($uid, $sentFolder);
         ok();
     } catch (Exception $e) {
         err($e->getMessage());

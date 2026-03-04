@@ -83,7 +83,7 @@
     },
 
     // ── 单封邮件详情 ──────────────────────────
-    async getMessage(id) {
+    async getMessage(id, folder = 'inbox') {
       if (this._demo()) {
         const all = [
           ...JSON.parse(localStorage.getItem('ppo_inbox') || '[]'),
@@ -92,7 +92,7 @@
         return all.find(m => m.id === id) || null;
       }
       try {
-        const result = await this._fetch('messages.php?id=' + encodeURIComponent(id));
+        const result = await this._fetch('messages.php?id=' + encodeURIComponent(id) + '&folder=' + folder);
         return result.message || null;
       } catch (e) {
         return null;
@@ -118,7 +118,7 @@
     },
 
     // ── 删除邮件 ──────────────────────────────
-    async deleteMessage(id) {
+    async deleteMessage(id, folder = 'inbox') {
       if (this._demo()) {
         ['ppo_inbox', 'ppo_sent'].forEach(key => {
           const msgs = JSON.parse(localStorage.getItem(key) || '[]');
@@ -126,7 +126,7 @@
         });
         return;
       }
-      await this._fetch('messages.php?id=' + encodeURIComponent(id), { method: 'DELETE' });
+      await this._fetch('messages.php?id=' + encodeURIComponent(id) + '&folder=' + folder, { method: 'DELETE' });
     },
 
     // ── 发送邮件 ──────────────────────────────

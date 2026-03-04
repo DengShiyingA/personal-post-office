@@ -72,7 +72,7 @@ window.sentView = {
       el.classList.toggle('active', el.dataset.id === id);
     });
 
-    api.getMessage(id).then(msg => {
+    api.getMessage(id, 'sent').then(msg => {
       if (!msg) return;
       const det = document.getElementById('sentDetail');
       if (!det) return;
@@ -117,7 +117,7 @@ window.sentView = {
 
   _delete(id) {
     if (!confirm('确定删除这封发送记录吗？')) return;
-    api.deleteMessage(id).then(() => {
+    api.deleteMessage(id, 'sent').then(() => {
       this._messages = this._messages.filter(m => m.id !== id);
       this._selectedId = null;
       this._renderList(this._messages);

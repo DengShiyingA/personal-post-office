@@ -82,8 +82,8 @@ class ImapClient {
     }
 
     // 获取单封邮件完整内容
-    public function getMessage($uid) {
-        $this->connect();
+    public function getMessage($uid, $folder = 'INBOX') {
+        $this->connect($folder);
         $body = $this->getBody($uid);
         imap_setflag_full($this->conn, $uid, '\\Seen', ST_UID);
 
@@ -108,8 +108,8 @@ class ImapClient {
     }
 
     // 删除邮件
-    public function deleteMessage($uid) {
-        $this->connect();
+    public function deleteMessage($uid, $folder = 'INBOX') {
+        $this->connect($folder);
         imap_delete($this->conn, $uid, FT_UID);
         imap_expunge($this->conn);
         $this->close();
