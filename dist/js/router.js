@@ -24,6 +24,7 @@
   };
 
   const container = document.getElementById('viewContainer');
+  let _currentView = null;
 
   function go(viewName) {
     const name = views[viewName] ? viewName : 'dashboard';
@@ -34,25 +35,45 @@
     const name = (hash || '').replace('#', '') || 'dashboard';
     const viewName = views[name] ? name : 'dashboard';
 
+    if (viewName === _currentView) return;
+    _currentView = viewName;
+
     // 更新侧边栏高亮
     document.querySelectorAll('.nav-item').forEach(el => {
       el.classList.toggle('active', el.dataset.view === viewName);
     });
 
-    // 更新页面标题
-    document.getElementById('pageTitle').textContent = pageTitles[viewName] || viewName;
+    // 标题淡入
+    const titleEl = document.getElementById('pageTitle');
+    titleEl.style.cssText = 'opacity:0;transform:translateY(-4px);transition:none';
+    setTimeout(() => {
+      titleEl.textContent = pageTitles[viewName] || viewName;
+      titleEl.style.cssText = 'opacity:1;transform:translateY(0);transition:opacity .2s ease,transform .2s ease';
+    }, 60);
 
-    // 渲染视图
-    const view = views[viewName];
-    if (view) {
-      container.innerHTML = view.render();
-      view.init && view.init();
-    }
+    // 内容淡出 → 渲染 → 淡入
+    container.style.cssText = 'opacity:0;transform:translateY(8px);transition:opacity .1s ease,transform .1s ease';
 
-    store.setState({ currentView: viewName });
+    setTimeout(() => {
+      const view = views[viewName];
+      if (view) {
+        container.innerHTML = view.render();
+        view.init && view.init();
+      }
+      store.setState({ currentView: viewName });
+      // rAF 确保 DOM 已渲染再触发淡入
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          container.style.cssText = 'opacity:1;transform:translateY(0);transition:opacity .2s ease,transform .2s ease';
+        });
+      });
+    }, 110);
   }
 
-  window.addEventListener('hashchange', () => render(location.hash));
+  window.addEventListener('hashchange', () => {
+    _currentView = null;
+    render(location.hash);
+  });
   render(location.hash);
 
   window.router = { go };

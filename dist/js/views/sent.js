@@ -15,9 +15,7 @@ window.sentView = {
             <input type="text" placeholder="搜索已发送…" id="sentSearch" />
           </div>
         </div>
-        <div class="message-list" id="sentList">
-          <div style="padding:36px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
-        </div>
+        <div class="message-list" id="sentList">${_skeletonList()}</div>
       </div>
       <div class="message-detail-pane" id="sentDetail">
         <div class="detail-empty">

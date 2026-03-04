@@ -15,9 +15,7 @@ window.trashView = {
             <input type="text" placeholder="搜索回收站…" id="trashSearch" />
           </div>
         </div>
-        <div class="message-list" id="trashList">
-          <div style="padding:36px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
-        </div>
+        <div class="message-list" id="trashList">${_skeletonList()}</div>
       </div>
       <div class="message-detail-pane" id="trashDetail">
         <div class="detail-empty">

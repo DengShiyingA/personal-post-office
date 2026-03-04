@@ -153,6 +153,20 @@ function avatarColor(name) {
 function _escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function _skeletonList(n) {
+  n = n || 4;
+  const item = `
+    <div class="skeleton-item">
+      <div class="skeleton skeleton-avatar"></div>
+      <div class="skeleton-lines">
+        <div class="skeleton skeleton-line w-60"></div>
+        <div class="skeleton skeleton-line w-80"></div>
+        <div class="skeleton skeleton-line w-40"></div>
+      </div>
+    </div>`;
+  return Array(n).fill(item).join('');
+}
 window._avatarColor = avatarColor;
 window._formatDate = formatDate;
 window._escHtml = _escHtml;
+window._skeletonList = _skeletonList;

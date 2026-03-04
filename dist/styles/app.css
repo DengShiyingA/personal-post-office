@@ -2,6 +2,55 @@
    主应用样式
 ═══════════════════════════════════════ */
 
+/* ── GPU 加速 / 性能 ── */
+#viewContainer {
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.message-list-pane,
+.message-detail-pane,
+.dashboard-body,
+.compose-body,
+.contacts-body,
+.settings-body {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.nav-item,
+.message-item,
+.contact-card,
+.stat-card,
+.quick-btn,
+.btn {
+  will-change: transform;
+}
+
+/* ── 骨架屏 ── */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f5 25%, #e8e8ed 50%, #f0f0f5 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: var(--r-sm);
+}
+.skeleton-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--divider);
+}
+.skeleton-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.skeleton-line { height: 11px; border-radius: 6px; }
+.skeleton-line.w-80 { width: 80%; }
+.skeleton-line.w-60 { width: 60%; }
+.skeleton-line.w-40 { width: 40%; }
+
 /* ── 整体布局 ── */
 .app-layout {
   display: flex;
@@ -229,6 +278,45 @@
 }
 .view { display: none; height: 100%; }
 .view.active { display: flex; flex-direction: column; height: 100%; }
+
+/* ── 列表项入场动画 ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.message-item {
+  animation: fadeInUp .2s var(--ease) both;
+}
+.message-item:nth-child(1)  { animation-delay: .03s; }
+.message-item:nth-child(2)  { animation-delay: .06s; }
+.message-item:nth-child(3)  { animation-delay: .09s; }
+.message-item:nth-child(4)  { animation-delay: .12s; }
+.message-item:nth-child(5)  { animation-delay: .15s; }
+.message-item:nth-child(6)  { animation-delay: .18s; }
+.message-item:nth-child(n+7) { animation-delay: .2s; }
+
+/* 统计卡片入场 */
+.stat-card {
+  animation: fadeInUp .25s var(--ease) both;
+}
+.stat-card:nth-child(1) { animation-delay: .05s; }
+.stat-card:nth-child(2) { animation-delay: .1s; }
+.stat-card:nth-child(3) { animation-delay: .15s; }
+
+/* 联系人卡片入场 */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.95) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.contact-card {
+  animation: scaleIn .22s var(--ease-spring) both;
+}
+.contact-card:nth-child(1) { animation-delay: .04s; }
+.contact-card:nth-child(2) { animation-delay: .08s; }
+.contact-card:nth-child(3) { animation-delay: .12s; }
+.contact-card:nth-child(4) { animation-delay: .16s; }
+.contact-card:nth-child(5) { animation-delay: .2s; }
+.contact-card:nth-child(n+6) { animation-delay: .22s; }
 
 /* ══════════════════════════════════════
    仪表盘

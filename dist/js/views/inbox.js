@@ -16,9 +16,7 @@ window.inboxView = {
             <input type="text" placeholder="搜索收件箱…" id="inboxSearch" />
           </div>
         </div>
-        <div class="message-list" id="inboxList">
-          <div style="padding:36px;text-align:center;color:var(--text-tertiary);font-size:13px">加载中…</div>
-        </div>
+        <div class="message-list" id="inboxList">${_skeletonList()}</div>
       </div>
 
       <!-- 详情面板 -->
