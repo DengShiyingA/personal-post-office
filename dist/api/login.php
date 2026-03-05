@@ -17,18 +17,9 @@ if (!$email || !$password) err('请填写邮箱和密码');
 
 $cfg = get_server_config();
 
-// 未配置服务器 → 返回演示模式标记
-if (!$cfg) {
-    $name = explode('@', $email)[0];
-    $name = ucfirst($name);
-    ok([
-        'token' => 'demo-' . md5($email),
-        'demo'  => true,
-        'user'  => ['email' => $email, 'name' => $name, 'avatar' => strtoupper($name[0])]
-    ]);
-}
+if (!$cfg) err('服务器尚未配置，请先在设置中配置 IMAP/SMTP 服务器');
 
-// 已配置 → 用 IMAP 验证
+// 用 IMAP 验证
 try {
     $imap = new ImapClient($cfg, $email, $password);
     $result = $imap->test();
