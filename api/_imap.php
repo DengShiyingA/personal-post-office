@@ -180,14 +180,19 @@ class ImapClient {
     }
 
     private function decodeSubject($subject) {
+        if (!$subject) return '';
         $decoded = imap_mime_header_decode($subject);
         $result = '';
-        foreach ($decoded as $part) {
-            $text = $part->text;
-            if ($part->charset && strtoupper($part->charset) !== 'UTF-8' && $part->charset !== 'default') {
-                $text = mb_convert_encoding($text, 'UTF-8', $part->charset);
+        if ($decoded !== false) {
+            foreach ($decoded as $part) {
+                $text = $part->text;
+                if ($part->charset && strtoupper($part->charset) !== 'UTF-8' && $part->charset !== 'default') {
+                    $text = mb_convert_encoding($text, 'UTF-8', $part->charset);
+                }
+                $result .= $text;
             }
-            $result .= $text;
+        } else {
+            $result = $subject;
         }
         return $result;
     }
@@ -198,12 +203,16 @@ class ImapClient {
         if ($name) {
             $decoded = imap_mime_header_decode($name);
             $name = '';
-            foreach ($decoded as $p) {
-                $t = $p->text;
-                if ($p->charset && strtoupper($p->charset) !== 'UTF-8' && $p->charset !== 'default') {
-                    $t = mb_convert_encoding($t, 'UTF-8', $p->charset);
+            if ($decoded !== false) {
+                foreach ($decoded as $p) {
+                    $t = $p->text;
+                    if ($p->charset && strtoupper($p->charset) !== 'UTF-8' && $p->charset !== 'default') {
+                        $t = mb_convert_encoding($t, 'UTF-8', $p->charset);
+                    }
+                    $name .= $t;
                 }
-                $name .= $t;
+            } else {
+                $name = $addr->personal;
             }
         }
         $email = ($addr->mailbox ?? '') . '@' . ($addr->host ?? '');
